@@ -12,20 +12,20 @@ function App() {
     }
 
     // fake loading delay
-    // const timer = setTimeout(() => {
-    //   setIsLoading(false);
-    // }, 2500);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
 
-    // return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
     return <Preloader />;
   }
   
-  return (
-    <MainPage />
-  );
+  // return (
+  //   <MainPage />
+  // );
 }
 
 export default App;
