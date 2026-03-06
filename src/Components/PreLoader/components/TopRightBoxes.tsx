@@ -1,38 +1,75 @@
-import React from "react";
+import { motion } from "framer-motion";
 
-const TopRightBoxes = () => {
+interface Props {
+  progress: number;
+}
+
+const topRow = [
+  { x: 0, y: 0 },
+  { x: 79, y: 0 },
+  { x: 159, y: 0 },
+  { x: 239, y: 0 },
+  { x: 319, y: 0 },
+  { x: 399, y: 0 },
+];
+
+const bottomRow = [
+  { x: 40, y: 40 },
+  { x: 119, y: 40 },
+  { x: 199, y: 40 },
+  { x: 279, y: 40 },
+  { x: 359, y: 40 },
+  { x: 439, y: 40 },
+];
+
+const TopRightBoxes = ({ progress }: Props) => {
+  const activePairs = Math.floor((progress / 100) * topRow.length);
+
   return (
-    <div className="flex flex-col  items-center justify-center fixed top-0 right-0 mr-10 m-1">
-      {/* Top row - 6 boxes */}
-      <div className="flex gap-12">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={`top-${i}`}
-            className="h-12 w-12 bg-[#F27C06]"
-            style={{
-              animation: "boxLoad 10s ease-in-out infinite",
-              animationDelay: `${i * 0.15}s`,
-              opacity: 0,
-            }}
-          />
-        ))}
-      </div>
+    <svg
+      width="480"
+      height="80"
+      viewBox="0 0 479 80"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* TOP ROW */}
+      {topRow.map((r, i) => {
+        const active = i < activePairs;
 
-      {/* Bottom row - 6 boxes, offset to create zig-zag */}
-      <div className="flex gap-12 translate-x-12">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={`bottom-${i}`}
-            className="h-12 w-12 bg-[#F27C06]"
-            style={{
-              animation: "boxLoad 10s ease-in-out infinite",
-              animationDelay: `${i * 0.15 + 0.075}s`,
-              opacity: 0,
-            }}
+        return (
+          <motion.rect
+            key={`top-${i}`}
+            x={r.x}
+            y={r.y}
+            width="40"
+            height="40"
+            fill="#F27C06"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: active ? 1 : 0 }}
+            transition={{ duration: 0.25 }}
           />
-        ))}
-      </div>
-    </div>
+        );
+      })}
+
+      {/* BOTTOM ROW */}
+      {bottomRow.map((r, i) => {
+        const active = i < activePairs;
+
+        return (
+          <motion.rect
+            key={`bottom-${i}`}
+            x={r.x}
+            y={r.y}
+            width="40"
+            height="40"
+            fill="#F27C06"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: active ? 1 : 0 }}
+            transition={{ duration: 0.25 }}
+          />
+        );
+      })}
+    </svg>
   );
 };
 

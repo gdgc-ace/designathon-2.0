@@ -54,7 +54,7 @@ const Preloader = ({ critical, deferred = [], onComplete }: PreloaderProps) => {
     <AnimatePresence>
       {!isLoaded && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black text-white"
+          className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-black text-white"
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
         >
