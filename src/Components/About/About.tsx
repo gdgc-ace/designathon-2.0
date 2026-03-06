@@ -1,163 +1,245 @@
-import React from "react"
-import { PiGlobeSimple } from "react-icons/pi"
-import { FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa"
-import { useRef } from "react"
-import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import ScrollTrigger from "gsap/ScrollTrigger"
+import { useRef, useEffect, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { aboutContent } from "@/lib/content";
+import Carousel from "./Carousel";
 
-gsap.registerPlugin(ScrollTrigger)
-
+gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
+  const container = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const hasAnimated = useRef(false);
 
-  const container = useRef(null)
+  // intersection observer as fallback for scroll-trigger
+  useEffect(() => {
+    if (!container.current) return;
 
-  useGSAP(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container.current,
-        start: "top 60%",
-        end: "bottom 40%",
-        toggleActions: "play none none reverse",
-        markers: false
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          setIsVisible(true);
+        }
       },
-      defaults: { ease: "power3.out" }
-    })
+      { threshold: 0.15 },
+    );
 
-    tl.from(".animate-text", {
-      x: -800,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 2,
-      delay:0.8,
-      ease: "elastic.out(1, 0.6)",
-      yoyo: true
-    })
-      .from(".image-animation", {
-        x: 800,
-        pin:true,
-        opacity: 0,
-        duration: 1,
-        ease: "elastic.out(1, 0.6)",
-        yoyo: true
-      },"<").from(".copyright-animation",{
-        y: -80,
-        opacity: 0,
-        duration: 1,
-        ease: "elastic",
-        yoyo: true,
-        stagger:0.2
-      })
-      .from(".button-animation", {
-        x: 200,
-        opacity: 0,
-        stagger: 0.1,
+    observer.observe(container.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useGSAP(
+    () => {
+      const chars = container.current?.querySelectorAll(".about-heading-char");
+      const paraLines = container.current?.querySelectorAll(".about-para-line");
+      const arrow = container.current?.querySelector(".about-arrow");
+      const image = container.current?.querySelector(".about-image-animation");
+      const allTargets = [
+        ...(chars ? Array.from(chars) : []),
+        ...(paraLines ? Array.from(paraLines) : []),
+        ...(arrow ? [arrow] : []),
+        ...(image ? [image] : []),
+      ];
+
+      // elements start visible via css, gsap hides them for animation
+      gsap.set(allTargets, { opacity: 0 });
+
+      if (chars && chars.length > 0) {
+        gsap.set(chars, { y: 40 });
+      }
+      if (paraLines && paraLines.length > 0) {
+        gsap.set(paraLines, { y: 20 });
+      }
+      if (arrow) gsap.set(arrow, { x: -20 });
+      if (image) gsap.set(image, { x: 10 });
+
+      // plays the reveal animation
+      const playReveal = () => {
+        if (hasAnimated.current) return;
+        hasAnimated.current = true;
+
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+        });
+
+        if (chars && chars.length > 0) {
+          tl.to(chars, {
+            y: 0,
+            opacity: 1,
+            stagger: 0.04,
+            duration: 0.8,
+          });
+        }
+
+        if (paraLines && paraLines.length > 0) {
+          tl.to(
+            paraLines,
+            {
+              y: 0,
+              opacity: 1,
+              stagger: 0.08,
+              duration: 0.6,
+            },
+            "-=0.4",
+          );
+        }
+
+        if (arrow) {
+          tl.to(
+            arrow,
+            { x: 0, opacity: 1, duration: 0.4, ease: "bounce.out" },
+            "-=0.3",
+          );
+        }
+
+        if (image) {
+          tl.to(image, { x: 0, opacity: 1, duration: 0.8 }, "-=0.3");
+        }
+      };
+
+      // primary trigger via scroll
+      ScrollTrigger.create({
+        trigger: container.current,
+        start: "top 80%",
+        once: true,
+        onEnter: playReveal,
+      });
+
+      // secondary trigger on scroll-back
+      ScrollTrigger.create({
+        trigger: container.current,
+        start: "bottom bottom",
+        once: true,
+        onEnterBack: playReveal,
+      });
+    },
+    { scope: container },
+  );
+
+  // fallback: if intersection observer detected visibility and gsap hasn't fired
+  useEffect(() => {
+    if (!isVisible || hasAnimated.current) return;
+
+    // give scrolltrigger a moment to catch up
+    const fallbackTimer = setTimeout(() => {
+      if (hasAnimated.current) return;
+      hasAnimated.current = true;
+
+      const el = container.current;
+      if (!el) return;
+
+      const targets = el.querySelectorAll(
+        ".about-heading-char, .about-para-line, .about-arrow, .about-image-animation, .about-button-animation",
+      );
+
+      gsap.to(targets, {
+        opacity: 1,
+        x: 0,
+        y: 0,
         duration: 0.6,
-        ease: "power1.inOut",
-        yoyo: true
-      },"<0.5")
-      .from(".arrow", {
-        x: -150,
-        opacity: 0,
-        duration: 1,
-        ease: "bounce.out",
-        yoyo: true
-      })
-      .from(".icons-animation", {
-        y: -80,
-        x:-40,
-        pin: true,
-        opacity: 0,
-        duration: 1,
-        ease: "elastic",
-        yoyo: true,
-        stagger:0.2
-      })
+        stagger: 0.03,
+        ease: "power2.out",
+      });
+    }, 500);
 
-  }, { scope: container })
+    return () => clearTimeout(fallbackTimer);
+  }, [isVisible]);
 
-  const socialLinks = [
-    { Icon: FaTwitter as React.ElementType, url: "https://twitter.com" },
-    { Icon: PiGlobeSimple as React.ElementType, url: "https://www.gdgcace.in/" },
-    { Icon: FaLinkedin as React.ElementType, url: "https://www.linkedin.com/company/google-developer-student-club-ace" },
-    { Icon: FaInstagram as React.ElementType, url: "https://www.instagram.com/gdgc_ace" },
-  ];
+  // l-shape clip path used only on desktop
+  const shapePath = [
+    "M 0.05,0",
+    "L 0.95,0",
+    "Q 1,0 1,0.05",
+    "L 1,0.95",
+    "Q 1,1 0.95,1",
+    "L 0.35,1",
+    "C 0.29,1 0.28,0.97 0.28,0.90",
+    "L 0.28,0.78",
+    "C 0.28,0.72 0.24,0.70 0.18,0.70",
+    "L 0.05,0.70",
+    "Q 0,0.70 0,0.65",
+    "L 0,0.05",
+    "Q 0,0 0.05,0",
+    "Z",
+  ].join(" ");
 
   return (
     <div
       ref={container}
-      className="bg-[#211E1B] min-h-screen flex flex-col overflow-x-hidden text-white pt-20"
+      className="bg-[#211E1B] min-h-[90vh] lg:h-dvh lg:max-h-screen flex flex-col overflow-x-hidden text-white"
     >
-      {/* Main Content Wrapper */}
-      <div className="flex flex-col lg:flex-row flex-1 w-full gap-20 px-5 lg:px-30 py-1 ">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-12 flex-1 flex flex-col lg:flex-row items-center gap-4 sm:gap-6 lg:gap-12 py-8 sm:py-10 lg:py-0">
+        <div className="flex-1 flex flex-col justify-center w-full">
+          <div className="flex items-center gap-3 mb-3 sm:mb-4"></div>
 
-        {/* Text Area - Left */}
-        <div className="flex flex-col flex-1 items-center md:py-12 lg:py-20 text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl text-white mt-1 sm:mt-2 leading-tight tracking-widest overflow-hidden">
+            <span className="block overflow-hidden">
+              {aboutContent.headingLine1.split("").map((char, i) => (
+                <span
+                  key={`l1-${i}`}
+                  className="about-heading-char inline-block font-bold"
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
+            </span>
+            <span className="block overflow-hidden">
+              {aboutContent.headingLine2.split("").map((char, i) => (
+                <span
+                  key={`l2-${i}`}
+                  className="about-heading-char inline-block font-bold text-primary"
+                >
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
+            </span>
+          </h2>
 
-          {/* Heading */}
-          <div className="flex flex-col">
-            <h1
-              className="animate-text text-4xl md:text-5xl lg:text-7xl text-white mt-9 leading-tight text-spread tracking-widest"
-              style={{ textShadow: "5px 5px 1px rgba(0,0,0,2)" }}
-            >
-              ABOUT <span className=" text-[#F27C06]">GDGC ACE</span>
-            </h1>
-
-            <span className="arrow text-[#F27C06] text-5xl font-serif font-bold lg:relative top-0 left-50 mb-6">&gt;&gt;&gt;&gt;&gt;&gt;</span>
-
+          <div className="flex items-center gap-3 mt-2 sm:mt-3 mb-1">
+            <span className="about-arrow text-primary text-2xl sm:text-3xl md:text-5xl font-serif font-bold">
+              {">>>>>>"}
+            </span>
           </div>
-          <p className="animate-text text-xl lg:text-2xl text-white lg:max-w-2xl mb-10 lg:leading-11 lg:tracking-wider">
-            GDGC ACE empowers tech enthusiasts. We foster a vibrant community through
-            workshops, hackathons, and industry connections. Our members explore
-            cutting-edge technologies, build strong portfolios, and gain the skills to
-            succeed in the evolving tech world.
-          </p>
 
-          <button className="button-animation bg-[#F27C06] active:scale-120 px-6 py-4 rounded-xl lg:text-2xl text-xl text-center text-white tracking-wider">
-            VISIT GDGC OFFICIAL WEBSITE
-          </button>
-
+          <div className="mt-2 sm:mt-4 lg:mt-7 mb-4 sm:mb-6 lg:mb-10 lg:max-w-2xl">
+            <p className="about-para-line text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl text-white leading-relaxed sm:leading-relaxed lg:leading-11 tracking-wide lg:tracking-wider">
+              {aboutContent.paragraph}
+            </p>
+          </div>
         </div>
 
-        {/* Image Area - Right */}
-        <div className="flex-1 flex items-center justify-center image-animation w-full">
-          <div className="relative w-full aspect-square  max-w-full  bg-black shadow-2xl flex items-center justify-center"
-            style={{
-              clipPath: "url(#aboutInvertedShape)",
-              WebkitClipPath: "url(#aboutInvertedShape)"
-            }}>
-            <span className="text-gray-500 italic">Image Gallery Placeholder</span>
+        {/* carousel — rectangular full-width on mobile, L-shape clip on desktop */}
+        <div className="about-image-animation flex-1 w-full lg:max-w-lg flex flex-col items-start min-h-0">
+          {/* mobile: rectangular full-width carousel */}
+          <div className="block lg:hidden w-full">
+            <div className="w-full aspect-video rounded-xl overflow-hidden">
+              <Carousel />
+            </div>
+          </div>
+
+          {/* desktop: L-shape clipped carousel */}
+          <div className="hidden lg:block relative w-full aspect-4/5 mx-auto lg:mx-0">
+            <svg width="0" height="0" className="absolute" aria-hidden="true">
+              <defs>
+                <clipPath id="aboutLShape" clipPathUnits="objectBoundingBox">
+                  <path d={shapePath} />
+                </clipPath>
+              </defs>
+            </svg>
+            <div
+              className="w-full h-full overflow-hidden"
+              style={{
+                clipPath: "url(#aboutLShape)",
+                WebkitClipPath: "url(#aboutLShape)",
+              }}
+            >
+              <Carousel />
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+};
 
-      {/* Footer Section */}
-      <footer className="w-full py-6 px-20 md:py-8 flex flex-col md:flex-row justify-between text-center items-center gap-6 ">
-        <p className="text-white text-xl md:text-2xl copyright-animation">
-          © 2025-26 GDGC ACE
-        </p>
-        <div className="flex gap-6 md:gap-10">
-    {socialLinks.map(({ Icon, url }, index) => (
-      <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="icons-animation">
-        <Icon className={`text-4xl md:text-5xl active:scale-110 ${url.includes('gdgcace') ? 'bg-white p-1 text-[#211E1B] rounded-full hover:bg-[#F27C06]' : 'hover:text-[#F27C06]'}`} />
-      </a>
-    ))}
-  </div>
-
-      </footer >
-
-      {/* SVG ClipPath Definition */}
-      < svg width="0" height="0" className="absolute" >
-        <defs>
-          <clipPath id="aboutInvertedShape" clipPathUnits="objectBoundingBox">
-            <path d="M0.05 0 H0.95 A0.05 0.06 0 0 1 1 0.06 V0.94 A0.05 0.06 0 0 1 0.95 1 H0.5 A0.05 0.06 0 0 1 0.45 0.94 V0.84 A0.05 0.06 0 0 0 0.4 0.78 H0.05 A0.05 0.06 0 0 1 0 0.72 V0.06 A0.05 0.06 0 0 1 0.05 0 Z" />
-          </clipPath>
-        </defs>
-      </svg >
-    </div >
-
-  )
-}
-
-export default About
+export default About;

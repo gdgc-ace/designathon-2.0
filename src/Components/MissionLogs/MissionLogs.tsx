@@ -1,330 +1,234 @@
-import { Suspense, useRef } from "react";
-import { motion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Sphere } from "@react-three/drei";
-import * as THREE from "three";
 import MouseWaveScene from "../ui/mouse-wave-scene";
-
-const ASSETS = {
-  drill: "/images/mission_logs/drill.svg",
-  globe: "/images/mission_logs/globe.svg",
-  mesh: "/images/mission_logs/mesh.svg",
-  milkyway: "/images/mission_logs/milkyway.png",
-  rightArrowFilled: "/images/mission_logs/rightArrow_filled.svg",
-  rightArrowOutline: "/images/mission_logs/rightArrow_outline.svg",
-  sponge: "/images/mission_logs/sponge.svg",
-  bottomGlobe: "/images/mission_logs/bottom_right_globe.png",
-};
-
-const RotatingSphere = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  useFrame((_state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.5;
-      meshRef.current.rotation.x += delta * 0.2;
-    }
-  });
-
-  return (
-    <Sphere args={[1, 16, 16]} ref={meshRef} scale={2}>
-      <meshBasicMaterial wireframe color="white" transparent opacity={0.3} />
-    </Sphere>
-  );
-};
+import ArrowsBar from "./components/ArrowsBar";
+import CpuStats from "./components/CpuStats";
+import RegisterRing from "./components/RegisterRing";
+import OptimizedImage from "@/Components/OptimizedImage";
+import { assets } from "@/lib/assets";
 
 const MissionLogs = () => {
   return (
-    <main className="h-screen w-full bg-background text-foreground overflow-hidden relative font-sans selection:bg-primary/30 flex flex-col justify-center items-center">
-      {/* bg Grid  */}
+    <main className="h-dvh max-h-screen w-full bg-[#141414] text-foreground overflow-hidden relative font-sans">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-      <div className="relative z-10 w-full h-full max-h-[100vh] p-[2vh] lg:p-[4vh] grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-[2vh]">
-        <header className="col-span-12 flex justify-center items-start pt-2">
-          <h1 className="text-[10vh] leading-none   text-accent uppercase ">
-            Mission <span className="font-light text-foreground/80">Logs</span>
-          </h1>
-        </header>
+      <h1 className="absolute top-4 lg:top-8 left-1/2 -translate-x-1/2 z-30 text-4xl sm:text-5xl lg:text-7xl xl:text-8xl leading-none text-accent font-share-tech uppercase tracking-tighter drop-shadow-2xl text-center whitespace-nowrap">
+        MISSION <span className="text-white">LOGS</span>
+      </h1>
 
-        {/* --- LEFT COLUMN --- */}
-        <div className="col-span-12 lg:col-span-3 flex flex-col gap-[2vh] h-full justify-between lg:pr-4 min-h-0">
-          <motion.div
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="bg-primary text-background p-[3vh] rounded-[2rem] rounded-br-none relative shadow-[0_0_30px_rgba(242,124,6,0.2)] group hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-center min-h-[25vh]"
-          >
-            <h2 className="text-[4vh] font-bold leading-none mb-[1vh] uppercase">
-              Bla bla bla
-              <br />
-            </h2>
-            <p className="text-[2vh] leading-tight font-medium opacity-90">
-              Spacebound symbolizes ambition without limits. Your space crew is
-              sent to explore the and push beyond the limits of design
-            </p>
-          </motion.div>
 
-          {/* Sponge Card - Organic Flapping */}
-          <div className="border border-primary/50 rounded-2xl p-[3vh] flex items-center justify-center relative bg-black/20 backdrop-blur-sm overflow-hidden flex-1 min-h-[20vh]">
-            <div className="absolute top-2 left-2 w-2 h-2 border border-primary/50" />
-            <div className="absolute bottom-2 right-2 w-2 h-2 border border-primary/50" />
+      <ArrowsBar />
 
-            <motion.img
-              src={ASSETS.sponge}
-              alt="Sponge Structure"
-              className="w-full h-auto max-h-[20vh] object-contain drop-shadow-[0_0_20px_rgba(242,124,6,0.3)]"
-              animate={{
-                scaleY: [1, 0.9, 1.1, 0.95, 1],
-                scaleX: [1, 1.1, 0.9, 1.05, 1],
-                rotate: [0, -2, 2, -1, 0],
-                filter: [
-                  "brightness(1)",
-                  "brightness(1.1)",
-                  "brightness(0.9)",
-                  "brightness(1)",
-                ],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.25, 0.5, 0.75, 1],
+      <div className="relative z-10 w-full h-full flex flex-col justify-between lg:grid lg:grid-cols-[minmax(200px,18vw)_1fr_minmax(200px,18vw)] overflow-hidden pb-12 lg:pb-0">
+        {/* left column (desktop) / top section (mobile) */}
+        <div className="flex flex-col p-3 lg:p-5 pt-20 lg:pt-8 gap-3 z-20 pointer-events-none lg:pointer-events-auto min-h-0 flex-shrink">
+          <div className="flex justify-between items-start pointer-events-auto gap-3">
+            <div className="flex flex-col gap-3 w-[65%] lg:w-full">
+              {/* about theme card */}
+              <div className="w-full filter drop-shadow-[0_10px_20px_rgba(242,124,6,0.15)] z-20">
+                <div
+                  className="bg-primary px-3 lg:px-4 min-h-20 lg:min-h-36 w-full lg:w-92 flex flex-col py-2 lg:py-5 gap-1 lg:gap-3 h-full"
+                  style={{
+                    clipPath:
+                      "polygon(0% 0%, 65% 0%, 75% 25%, 100% 25%, 100% 100%, 0% 100%)",
+                    borderRadius: "1rem 0 1rem 1rem",
+                  }}
+                >
+                  <h2 className="text-lg lg:text-3xl font-bold leading-none uppercase font-share-tech text-[#141414]">
+                    About theme
+                  </h2>
+                  <p className="text-[10px] text-justify lg:text-[16px] font-inter leading-tight font-medium text-orange-200">
+                    Spacebound symbolizes ambition without limits. Your space
+                    crew is sent to explore and push beyond the limits of
+                    design.
+                  </p>
+                </div>
+              </div>
+
+              {/* description box (mobile) */}
+              <div className="z-20 lg:hidden mt-1 pointer-events-auto">
+                <div className="bg-foreground text-orange-950 p-2.5 text-justify pt-2.5 pb-3 rounded-lg border-white/10 shadow-2xl relative w-full flex flex-col justify-center">
+                  <p className="text-[9px] sm:text-[11px] md:text-sm font-medium leading-relaxed font-inter">
+                    <strong className="text-accent block mb-0.5">
+                      Designathon 2.0: Spacebound
+                    </strong>
+                    is a creative sprint where imagination meets innovation.
+                    Over an intense period, participants collaborate to design,
+                    prototype, and present solutions that push boundaries.
+                  </p>
+                </div>
+
+                <div className="hidden lg:flex text-accent font-mono text-[9px] flex items-center gap-1 whitespace-nowrap mt-0.5">
+                  <span className="w-1.5 h-1.5 bg-accent inline-block rounded-sm" />{" "}
+                  151.46M km
+                </div>
+              </div>
+            </div>
+
+            {/* drill video (mobile) */}
+            <div className="w-[30%] max-w-[120px] aspect-[1/2] lg:hidden border border-primary/30 rounded-lg overflow-hidden backdrop-blur-sm z-20 flex-shrink-0 relative pointer-events-auto bg-black">
+               <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-primary/60 z-10" />
+                <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-primary/60 z-10" />
+              <video
+                src={assets.missionLogs.drill}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90"
+                onError={(e) => {
+                  const vid = e.currentTarget;
+                  setTimeout(() => vid.load(), 2000);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between items-start pointer-events-auto mt-0 relative">
+            <div className="flex flex-col gap-2">
+              <div className="text-accent font-mono text-[10px] lg:text-xs tracking-[0.2em] flex items-center gap-2 z-20">
+                XDMGR-231-1 <span className="w-2 h-2 border border-accent" />
+              </div>
+            </div>
+          </div>
+
+          {/* sponge card (desktop) */}
+          <div className="hidden lg:flex items-start gap-4 w-48 lg:w-62 xl:w-64 aspect-square">
+            <div className=" border border-primary/50 rounded-lg overflow-hidden relative hover:border-primary bg-black/20 backdrop-blur-sm group">
+              <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-primary/60 z-10 group-hover:top-4 group-hover:left-4 group-hover:border-primary transition-all ease-in-out duration-300" />
+              <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-primary/60 z-10 group-hover:right-4 group-hover:bottom-4 group-hover:border-primary transition-all ease-in-out duration-300" />
+              <video
+                src={assets.missionLogs.sponge}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 hidden lg:block" />
+
+          {/* description box (desktop) */}
+          <div className="hidden lg:block w-full lg:w-[calc(100%+22rem)] relative mt-4 lg:mt-0 pointer-events-auto">
+            <div className="bg-foreground text-orange-950 p-4 lg:p-5 rounded-2xl border border-white/10 shadow-2xl relative">
+              <p className="text-xs lg:text-[16px] font-medium leading-relaxed font-inter">
+                <strong className="text-accent">
+                  Designathon 2.0: Spacebound
+                </strong>{" "}
+                is a creative sprint where imagination meets innovation. Over an
+                intense period, participants collaborate to design, prototype,
+                and present solutions that push boundaries, whether in
+                technology, storytelling, or visual design. It's not just about
+                building, it's about exploring new frontiers of creativity.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* center mesh */}
+        <div className="absolute inset-0 lg:static flex flex-col items-center justify-center w-full z-5 pointer-events-none overflow-hidden">
+          <div className="w-[90vw] mt-10 md:mt-0 sm:w-[75vw] lg:w-200 max-w-[700px] perspective-[1000px] absolute top-[50%] lg:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto lg:animate-none">
+            <div className="w-full h-full transform-style-3d rotate-x-12">
+              <MouseWaveScene imageSrc={assets.missionLogs.mesh} />
+            </div>
+          </div>
+          <div className="absolute top-1/2 mt-12 md:mt-0 left-1/2 -translate-x-1/2 -translate-y-[55%] z-100  pointer-events-none">
+         
+            <OptimizedImage
+              src={assets.missionLogs.milkyway}
+              alt="Galaxy"
+              eager
+              className="w-48 md:w-72 object-contain"
+            />
+          </div>
+            <div className="relative w-140 h-40 ">
+          <div className="hidden lg:flex justify-between absolute top-0 left-0 items-start pointer-events-auto mt-0 ">
+            <div className="text-accent font-mono text-[10px] lg:text-xs tracking-[0.2em flex items-center gap-2 z-20">
+              New BigBang detected !!{" "}
+              <span className="w-6 h-6 border-2 border-accent" />
+            </div>
+          </div>
+          <div className="hidden lg:flex justify-between absolute -top-8 right-8 items-start pointer-events-auto mt-0 ">
+            <div className="text-accent/80 font-mono text-[10px] lg:text-xs tracking-[0.2em flex items-center gap-2 z-20 ">
+              High Creativity alert!!
+            </div>
+          </div>
+        </div>
+
+        </div>
+
+        {/* right column (desktop) / bottom section (mobile) */}
+        <div className="flex flex-col p-3 px-5 lg:p-5 lg:pt-8 gap-3 lg:gap-3 z-20 pointer-events-none lg:pointer-events-auto mb-[60px] lg:mb-0 relative min-h-[140px] flex-shrink">
+          <div className="flex justify-between items-end gap-2 pointer-events-auto lg:hidden h-full pb-3">
+            {/* sponge card (mobile) */}
+            <div className="w-[40%] z-20 h-full flex items-end relative top-12">
+              <div className="w-full aspect-square max-h-[30vh] border border-primary/30 rounded-lg overflow-hidden relative bg-black/20 backdrop-blur-sm">
+                <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-primary/60 z-10" />
+                <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-primary/60 z-10" />
+                <video
+                  src={assets.missionLogs.sponge}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* cpu stats (mobile) */}
+            <div className="flex flex-col items-end  w-[40%] z-20 h-full justify-between">
+              <div className="scale-[0.46] sm:scale-[0.6] origin-right mt-8 w-70">
+                <CpuStats />
+              </div>
+            </div>
+          </div>
+
+          {/* drill video (desktop) */}
+          <div className="hidden w-full h-48 lg:block lg:relative lg:w-full lg:h-76 xl:h-96 border border-primary/50 hover:border-primary rounded-lg overflow-hidden backdrop-blur-sm pointer-events-auto z-20 bg-black group">
+            <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-primary/60 z-10 group-hover:top-4 group-hover:left-4 group-hover:border-primary transition-all ease-in-out duration-300" />
+            <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-primary/60 z-10 group-hover:right-4 group-hover:bottom-4 group-hover:border-primary transition-all ease-in-out duration-300" />
+
+            <video
+              src={assets.missionLogs.drill}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-90"
+              onError={(e) => {
+                const vid = e.currentTarget;
+                setTimeout(() => vid.load(), 2000);
               }}
             />
           </div>
 
-          {/* Title Info Card */}
-          <div className="bg-foreground text-background p-[2vh] rounded-2xl relative flex items-stretch gap-3 mt-auto min-h-[15vh]"></div>
-        </div>
-
-        {/* --- CENTER COLUMN (HERO) --- */}
-        <div className="col-span-12 lg:col-span-6 flex flex-col relative h-full min-h-0 p-5">
-          {/* Center Hero Space */}
-          <div className="flex-1 flex flex-col items-center justify-center relative">
-            {/* Milkyway Galaxy */}
-            <div className="absolute top-[15%] w-[50vh] aspect-square opacity-80 mix-blend-screen">
-              <img
-                style={{ zIndex: 999 }}
-                src={ASSETS.milkyway}
-                alt="Galaxy"
-                className="w-full h-full object-contain pb-4 z-99"
-              />
-            </div>
-
-            {/* Mesh Grid - Ripple Effect */}
-            <motion.div
-              className="relative z-0 w-full max-w-[96vh] mt-[10vh] perspective-[800px]"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-            >
-              {/* Primary Mesh */}
-              <motion.div
-                className="w-full h-auto drop-shadow-[0_0_40px_rgba(242,124,6,0.3)] origin-bottom pb-2"
-                animate={{
-                  scaleY: [1, 0.99, 1.01, 1],
-                  rotateX: [0, 2, -2, 0],
-                }}
-                transition={{
-                  duration: 10,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <MouseWaveScene imageSrc={ASSETS.mesh} />
-              </motion.div>
-
-              {/* Ghost Ripple Mesh */}
-              <motion.img
-                src={ASSETS.mesh}
-                className="absolute inset-0 w-full h-full opacity-30 mix-blend-overlay blur-sm  pointer-events-none"
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.3, 0, 0.3],
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeOut" }}
-              />
-
-              {/* Identifier */}
-              <motion.div
-                className="absolute bottom-[20%] left-0 text-primary font-mono text-[2vh] tracking-widest flex items-center gap-2"
-                animate={{ x: [0, 5, 0] }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                XDMGR-231-1{" "}
-                <span className="inline-block w-[1.5vh] h-[1.5vh] border border-primary bg-primary/20" />
-              </motion.div>
-            </motion.div>
+          <div className="hidden lg:flex text-accent font-mono text-[10px] lg:text-xs items-center gap-2 lg:mt-3">
+            <span className="w-1.5 h-1.5 bg-accent inline-block" /> 151.46
+            million kilometer
           </div>
 
-          {/*TODO arrows*/}
-          {/*<div className="mb-[2vh] w-full max-w-[50vh] self-center border-y border-white/10 py-[1.5vh] bg-black/40 backdrop-blur-md flex items-center justify-between gap-4 px-6 rounded-full">
-            <div className="flex gap-2 overflow-hidden flex-1 justify-center [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-              {[...Array(12)].map((_, i) => (
-                <motion.img
-                  key={i}
-                  src={
-                    i % 2 === 0
-                      ? ASSETS.rightArrowOutline
-                      : ASSETS.rightArrowFilled
-                  }
-                  className="h-[3vh] w-auto opacity-70"
-                  animate={{ x: ["-100%", "0%"] }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "linear",
-                    delay: i * 0.05,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="h-[5vh] w-[5vh] border border-primary/50 rounded-full p-1 animate-pulse">
-              <img
-                src={ASSETS.bottomGlobe}
-                className="w-full h-full opacity-80"
-                alt="Icon"
-              />
-            </div>
-          </div>*/}
-        </div>
-
-        <div className="col-span-12 lg:col-span-3 flex flex-col gap-[2vh] h-full lg:pl-4 min-h-0">
-          {/* Drill Card - CSS Mask Animation */}
-          <div className="border border-white/20 rounded-2xl p-[3vh] flex-1 min-h-[30vh] flex items-center justify-center relative overflow-hidden bg-black/20 group">
-            <div className="absolute top-0 right-0 w-[4vh] h-[4vh] border-t-2 border-r-2 border-primary rounded-tr-xl opacity-80" />
-            <div className="absolute bottom-0 left-0 w-[4vh] h-[4vh] border-b-2 border-l-2 border-white/30 rounded-bl-xl opacity-60" />
-
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(242,124,6,0.1),transparent_70%)]" />
-
-            {/* Drill Container */}
-            <div className="relative w-full h-[80%] flex items-center justify-center">
-              <img
-                src={ASSETS.drill}
-                className="h-full w-auto object-contain opacity-20 absolute"
-              />
-
-              {/* drilling Mask animation */}
-              <motion.div
-                className="h-full w-full absolute inset-0"
-                style={{
-                  WebkitMaskImage: `url(${ASSETS.drill})`,
-                  WebkitMaskSize: "contain",
-                  WebkitMaskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center",
-                  maskImage: `url(${ASSETS.drill})`,
-                  maskSize: "contain",
-                  maskRepeat: "no-repeat",
-                  maskPosition: "center",
-                  background:
-                    "linear-gradient(45deg, transparent 40%, rgba(242,124,6,0.8) 50%, transparent 60%)",
-                  backgroundSize: "200% 200%",
-                }}
-                animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
+          {/* cpu stats (desktop) */}
+          <div className="hidden lg:block relative lg:absolute lg:bottom-28 lg:right-72 lg:mt-0 w-full max-w-xs pointer-events-auto">
+            <CpuStats />
           </div>
 
-          <div className="flex flex-col mt-auto gap-[2vh]">
-            <div className="text-primary font-mono text-right text-[1.5vh] flex items-center justify-end gap-2">
-              <span className="w-2 h-2 bg-primary animate-pulse" />
-              151.46 million kilometer
-            </div>
+          <div className="flex-1 hidden lg:block" />
 
-            {/* Stats Panel */}
-            <div className="bg-black/40 border-t border-white/10 p-[2vh] font-mono text-[1.2vh] text-white/70 space-y-[1.5vh]">
-              {/* CPU Loader */}
-              <div className="flex flex-col gap-1">
-                <div className="flex justify-between">
-                  <span>CPU usage: 18%</span>
-                  <span>Running: 0</span>
-                </div>
-                <div className="h-1 bg-white/10 w-full relative overflow-hidden">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 bg-primary h-full"
-                    animate={{
-                      left: ["0%", "80%", "0%"],
-                      width: ["10%", "30%", "10%"],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <div>File systems: / 30GB</div>
-                <motion.div className="h-1 bg-white/10 w-full relative overflow-hidden">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 bg-white h-full w-1/2"
-                    animate={{ x: ["-100%", "200%"] }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                </motion.div>
-              </div>
-              <div className="classname">blabla</div>
-              <div className="classname">blabla</div>
-              <div className="classname">blabla</div>
-            </div>
-
-            <div className="relative w-[18vh] h-[18vh] self-end translate-x-2 translate-y-2">
-              {/* register ring */}
-              <motion.div
-                className="absolute  inset-0 flex items-center justify-center z-10 pointer-events-none"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <svg
-                  viewBox="0 0 100 100"
-                  className="w-full h-full overflow-visible"
-                >
-                  <defs>
-                    <path
-                      id="circlePath"
-                      d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
-                    />
-                  </defs>
-                  <text
-                    fontSize="11"
-                    fill="white"
-                    letterSpacing="0.2em"
-                    fontWeight="bold"
-                  >
-                    <textPath href="#circlePath" startOffset="0%">
-                      REGISTER NOW - REGISTER NOW - REGISTER NOW -
-                    </textPath>
-                  </text>
-                </svg>
-              </motion.div>
-
-              {/* 3D Canvas */}
-              <div className="absolute inset-[15%] rounded-full overflow-hidden">
-                <Canvas
-                  camera={{ position: [0, 0, 4] }}
-                  gl={{ alpha: true }}
-                  style={{ background: "transparent" }}
-                >
-                  <ambientLight intensity={0.5} />
-                  <pointLight position={[10, 10, 10]} />
-                  <Suspense fallback={null}>
-                    <RotatingSphere />
-                  </Suspense>
-                </Canvas>
-              </div>
-            </div>
+          {/* register globe (desktop) */}
+          <div className="hidden lg:block lg:relative lg:mt-0 z-50 pointer-events-auto">
+            <RegisterRing />
           </div>
         </div>
+      </div>
+
+      {/* register ring (mobile) */}
+      <div className="absolute bottom-6 right-6 z-60 w-30 h-30 lg:hidden pointer-events-auto">
+        <RegisterRing />
       </div>
     </main>
   );
