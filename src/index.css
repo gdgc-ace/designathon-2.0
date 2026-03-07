@@ -678,3 +678,13 @@ html.lenis body {
 .animate-fade-in-up {
   animation: fade-in-up 300ms ease-out forwards;
 }
+
+.loader-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255,255,255,0.9) 0px,
+    rgba(255,255,255,0.9) 20px,
+    rgba(255,255,255,0.3) 20px,
+    rgba(255,255,255,0.3) 40px
+  );
+}

@@ -12,7 +12,7 @@ import MissionLogs from "@/Components/MissionLogs/MissionLogs";
 import { useLenis } from "@/lib/Lenis";
 import Footer from "@/Components/Footer";
 import { InfiniteRibbon } from "@/Components/ui/infinite-ribbon";
-import Preloader from "@/Components/Preloader";
+import Preloader from "@/Components/PreLoader/Preloader";
 import { criticalAssets, deferredAssets } from "@/lib/assets";
 import { ScrollEngine } from "@/lib/scroll-engine";
 import ScrollEngineContext from "@/lib/scroll-engine-context";
