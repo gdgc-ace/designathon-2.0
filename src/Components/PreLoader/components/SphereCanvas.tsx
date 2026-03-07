@@ -3,7 +3,7 @@ import InteractiveSphere from "@/Components/PreLoader/components/InteractiveSphe
 
 const SphereCanvas = () => {
   return (
-    <div className="w-[140px] h-[140px]">
+    <div className="w-full h-full">
       <Canvas
         dpr={[1, 1.5]}
         camera={{ position: [0, 0, 5], fov: 45 }}

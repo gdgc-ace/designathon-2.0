@@ -26,50 +26,53 @@ const TopRightBoxes = ({ progress }: Props) => {
   const activePairs = Math.floor((progress / 100) * topRow.length);
 
   return (
-    <svg
-      width="480"
-      height="80"
-      viewBox="0 0 479 80"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* TOP ROW */}
-      {topRow.map((r, i) => {
-        const active = i < activePairs;
+    <div className="overflow-hidden w-[140px] sm:w-[180px] md:w-[260px] lg:w-[360px] xl:w-[440px]">
+      <svg
+        width="100%"
+        height="auto"
+        viewBox="0 0 479 80"
+        preserveAspectRatio="xMinYMin meet"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* TOP ROW */}
+        {topRow.map((r, i) => {
+          const active = i < activePairs;
 
-        return (
-          <motion.rect
-            key={`top-${i}`}
-            x={r.x}
-            y={r.y}
-            width="40"
-            height="40"
-            fill="#F27C06"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: active ? 1 : 0 }}
-            transition={{ duration: 0.25 }}
-          />
-        );
-      })}
+          return (
+            <motion.rect
+              key={`top-${i}`}
+              x={r.x}
+              y={r.y}
+              width="40"
+              height="40"
+              fill="#F27C06"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{ duration: 0.25 }}
+            />
+          );
+        })}
 
-      {/* BOTTOM ROW */}
-      {bottomRow.map((r, i) => {
-        const active = i < activePairs;
+        {/* BOTTOM ROW */}
+        {bottomRow.map((r, i) => {
+          const active = i < activePairs;
 
-        return (
-          <motion.rect
-            key={`bottom-${i}`}
-            x={r.x}
-            y={r.y}
-            width="40"
-            height="40"
-            fill="#F27C06"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: active ? 1 : 0 }}
-            transition={{ duration: 0.25 }}
-          />
-        );
-      })}
-    </svg>
+          return (
+            <motion.rect
+              key={`bottom-${i}`}
+              x={r.x}
+              y={r.y}
+              width="40"
+              height="40"
+              fill="#F27C06"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{ duration: 0.25 }}
+            />
+          );
+        })}
+      </svg>
+    </div>
   );
 };
 

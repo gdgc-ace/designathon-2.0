@@ -10,8 +10,6 @@ interface PreloaderProps {
   onComplete: () => void;
 }
 
-const MIN_LOADER_TIME = 10000; // 5 seconds :- This is the minimum time the loader will show, even if assets load faster. Adjust as needed.
-
 const preloadImage = (src: string): Promise<void> =>
   new Promise((resolve) => {
     const img = new Image();
@@ -25,86 +23,92 @@ const Preloader = ({ critical, deferred = [], onComplete }: PreloaderProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-  let loadedCount = 0;
-  const total = Math.max(critical.length, 1);
+    let loaded = 0;
+    const total = Math.max(critical.length, 1);
 
-  const loadAll = async () => {
-    const start = performance.now();
+    const loadAll = async () => {
+      const start = performance.now();
 
-    await Promise.all(
-      critical.map(async (src) => {
-        await preloadImage(src);
-        loadedCount++;
+      await Promise.all(
+        critical.map(async (src) => {
+          await preloadImage(src);
+          loaded++;
 
-        const percent = Math.min(
-          100,
-          Math.round((loadedCount / total) * 100)
-        );
+          const percent = (loaded / total) * 80;
+          setProgress(percent);
+        }),
+      );
 
-        setProgress(percent);
-      })
-    );
+      const elapsed = performance.now() - start;
+      const remaining = Math.max(0, 2500 - elapsed);
 
-    // ensure final state
-    setProgress(100);
+      const startValue = progress;
+      const startTime = performance.now();
 
-    const elapsed = performance.now() - start;
-    const remaining = Math.max(0, 2000 - elapsed);
+      const animate = () => {
+        const t = Math.min(1, (performance.now() - startTime) / remaining);
 
-    setTimeout(() => {
-      setIsLoaded(true);
-    }, remaining);
+        const value = startValue + (100 - startValue) * t;
+        setProgress(value);
 
-    // background assets
-    deferred.forEach((src) => preloadImage(src));
-  };
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setProgress(100);
+          setIsLoaded(true);
+        }
+      };
 
-  loadAll();
-}, [critical, deferred]);
+      requestAnimationFrame(animate);
+
+      deferred.forEach(preloadImage);
+    };
+
+    loadAll();
+  }, [critical, deferred]);
 
   useEffect(() => {
-  if (isLoaded) {
-    const timer = setTimeout(onComplete, 700);
-    return () => clearTimeout(timer);
-  }
-}, [isLoaded, onComplete]);
+    if (isLoaded) {
+      const timer = setTimeout(onComplete, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, onComplete]);
 
   return (
     <AnimatePresence>
       {!isLoaded && (
         <motion.div
-          className="fixed inset-0 z-[9999] bg-background"
+          className="fixed inset-0 z-9999 bg-background"
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
         >
           {/* TOP RIGHT BOXES */}
-          <div className="absolute top-10 right-10">
+          <div className=" absolute top-6 right-4 w-35 sm:w-45 md:top-10 md:right-0 md:w-auto">
             <TopRightBoxes progress={progress} />
           </div>
 
-          {/* BOTTOM LEFT CONTENT */}
-          <div className="absolute bottom-10 left-20 w-[80%]">
-            <p className="text-white text-3xl mb-6 font-light tracking-wide">
-              And the Universe awakens...
-            </p>
-            {/* progress */}
-            <div className="w-full max-w-225">
-              <SkewProgressBar progress={progress} />
+          {/* BOTTOM SECTION */}
+          <div className=" absolute bottom-6 left-0 w-full px-6 md:bottom-10 md:left-20 md:w-[90%] md:px-0">
+            {/* TEXT + MOBILE SPHERE */}
+            <div className=" flex items-end justify-between  md:block ">
+              <p className="text-white text-lg sm:text-xl md:text-2xl font-light tracking-wide ">
+                And the Universe awakens...
+              </p>
+
+              {/* MOBILE SPHERE */}
+              <div className="w-17.5 h-17.5 md:hidden">
+                <SphereCanvas />
+              </div>
             </div>
 
-            {/* stripes */}
-            {/* <div
-                className="absolute inset-0 opacity-40"
-                style={{
-                  backgroundImage:
-                    "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.3) 10px, rgba(0,0,0,0.3) 20px)",
-                  animation: "stripeMove 1s linear infinite",
-                }}
-              /> */}
+            {/* PROGRESS BAR */}
+            <div className="w-full md:max-w-225">
+              <SkewProgressBar progress={progress} />
+            </div>
           </div>
 
-          {/* SPHERE */}
-          <div className="absolute bottom-6 right-25">
+          {/* DESKTOP SPHERE */}
+          <div className="hidden md:block absolute bottom-6 right-20 w-45 h-45">
             <SphereCanvas />
           </div>
         </motion.div>
